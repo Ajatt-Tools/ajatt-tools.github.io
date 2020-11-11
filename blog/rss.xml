@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="rss.css" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+
+<channel>
+<title>Your RSS Feed Title</title>
+<description>A brief description of your RSS feed.</description>
+<language>en-us</language>
+<link>http://yourwebsite.com/rss.xml</link>
+<atom:link href="http://yourwebsite.com/rss.xml" rel="self" type="application/rss+xml" />
+
+<!-- LB -->
+
+<item>
+<title>Hooray!</title>
+<guid>https://ajatt-tools.github.io/2020.html#hooray</guid>
+<pubDate>Wed, 11 Nov 2020 06:32:13 +0300</pubDate>
+<description><![CDATA[
+<p>Test post</p>
+<p>tag: test, post, lol</p>
+]]></description>
+</item>
+
+
+
+
+
+
+
+<!-- END -->
+</channel>
+</rss>
