@@ -1,6 +1,4 @@
-﻿
-
-body {
+﻿body {
   margin: 0;
   padding: 0;
   background-color: #14171a;
@@ -9,12 +7,6 @@ body {
     "Roboto Mono", "Droid Sans Mono", Monaco, Consolas, Courier, monospace;
   font-size: 1.0625em;
   line-height: 1.5;
-  background-image: url("https://i.imgur.com/HmPDUq8.png");
-  background-size: 150px;
-  background-position: bottom -30px right 7px;
-  background-repeat: no-repeat;
-  /*background-attachment: fixed;*/
-
 }
 pre {
   margin: 0;
