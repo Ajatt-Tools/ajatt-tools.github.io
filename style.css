@@ -199,7 +199,7 @@ strong {
 }
 .content {
   box-sizing: border-box;
-  display: inline-block;
+  display: block;
   min-width: 0;
   max-width: 100%;
   margin: 0;
