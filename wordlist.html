@@ -203,6 +203,7 @@ height :200 px ;
     <div id="unknownWordsPopup">
       <span id="closeButtonUnknown" style="float: right; cursor: pointer;">╳</span>
       <textarea id="unknownWords" placeholder="Enter sentences with unknown words here"></textarea>
+      <input type="checkbox" id="cjkTextCheckbox"> Japanese/Chinese/Korean text
       <button onclick="processSentence()">Process Sentence</button>
       <div id="highlightedWords"></div>
     </div>
@@ -244,46 +245,54 @@ function showUnknownWordsPopup() {
 
 
 function processSentence() {
-    const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
-    const knownWords = existingData.flatMap(entry => entry.originalWords);
+        const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+        const knownWords = existingData.flatMap(entry => entry.originalWords);
 
-    const textarea = document.getElementById('unknownWords');
-    const highlightedContainer = document.getElementById('highlightedWords');
+        const textarea = document.getElementById('unknownWords');
+        const highlightedContainer = document.getElementById('highlightedWords');
+        const isCJKText = document.getElementById('cjkTextCheckbox').checked;
 
-    // Instantiate a new TinySegmenter
-    var segmenter = new TinySegmenter(); 
+        let sentence;
 
-    // Split by spaces or punctuation marks using tinysegmenter
-    let sentence = segmenter.segment(textarea.value);
+        if (isCJKText) {
+          // Instantiate a new TinySegmenter
+          var segmenter = new TinySegmenter();
+          // Split by spaces or punctuation marks using tinysegmenter
+          sentence = segmenter.segment(textarea.value);
+        } else {
+          // Split by spaces for other languages
+          sentence = textarea.value.split(' ');
+        }
 
-    let highlightedHTML = '';
+        let highlightedHTML = '';
 
-  for (let i=0; i<sentence.length; i++) {
-      let word = removeDiacritics(sentence[i]);
-      if (!knownWords.includes(word)) {
-          highlightedHTML += `<span class='unknownWord'>${sentence[i]}</span> `;
-      } else {
-          highlightedHTML += `${sentence[i]} `;
-      }
-  }
-
-  // Clear text area after processing
-  textarea.value = '';
-
-  // Show processed sentence with highlighted unknown words
-  highlightedContainer.innerHTML = `<p>${highlightedHTML}</p>`;
-
-  const unknownWordElements = document.getElementsByClassName("unknownWord");
-  const originalTextarea = document.getElementById('originalWords');
-
-          for(let element of unknownWordElements) {
-              element.addEventListener("click", function() {
-                  if (!originalTextarea.readOnly) {
-                      originalTextarea.value += this.textContent + "\n";
-                  }
-              });
+        for (let i = 0; i < sentence.length; i++) {
+          let word = removeDiacritics(sentence[i]);
+          if (!knownWords.includes(word)) {
+            highlightedHTML += `<span class='unknownWord'>${sentence[i]}</span> `;
+          } else {
+            highlightedHTML += `${sentence[i]} `;
           }
+        }
+
+        // Clear text area after processing
+        textarea.value = '';
+
+        // Show processed sentence with highlighted unknown words
+        highlightedContainer.innerHTML = `<p>${highlightedHTML}</p>`;
+
+        const unknownWordElements = document.getElementsByClassName("unknownWord");
+        const originalTextarea = document.getElementById('originalWords');
+
+        for (let element of unknownWordElements) {
+          element.addEventListener("click", function() {
+            if (!originalTextarea.readOnly) {
+              originalTextarea.value += this.textContent + "\n";
+            }
+          });
+        }
       }
+
 
 function generateCSV() {
     const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
@@ -564,35 +573,42 @@ document.addEventListener('DOMContentLoaded', function () {
    document.body.classList.add('dark-theme');
 });      
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Load settings from localStorage
-    const settings = JSON.parse(localStorage.getItem('settings')) || {"darkTheme":true,"disableTimerAndBlurring":false};
+document.addEventListener('DOMContentLoaded', function() {
+        // Load settings from localStorage
+        const settings = JSON.parse(localStorage.getItem('settings')) || {"darkTheme":true,"disableTimerAndBlurring":false,"cjkTextCheckbox":false};
 
-    const darkThemeToggle = document.getElementById('darkThemeToggle');
-    const timerBlurringToggle = document.getElementById('timerBlurringToggle');
+        const darkThemeToggle = document.getElementById('darkThemeToggle');
+        const timerBlurringToggle = document.getElementById('timerBlurringToggle');
+        const cjkTextCheckbox = document.getElementById('cjkTextCheckbox');
 
-    // Apply settings from localStorage
-    darkThemeToggle.checked = settings.darkTheme;
-    timerBlurringToggle.checked = settings.disableTimerAndBlurring;
+        // Apply settings from localStorage
+        darkThemeToggle.checked = settings.darkTheme;
+        timerBlurringToggle.checked = settings.disableTimerAndBlurring;
+        cjkTextCheckbox.checked = settings.cjkTextCheckbox;
 
-    // apply settings
-    document.body.classList.toggle('dark-theme', settings.darkTheme);
-    disableTimerAndBlurring = settings.disableTimerAndBlurring;
-
-    // Save settings when changed
-    darkThemeToggle.addEventListener('change', function() {
-        settings.darkTheme = this.checked;
-        localStorage.setItem('settings', JSON.stringify(settings));
-        // dark theme
+        // Apply settings
         document.body.classList.toggle('dark-theme', settings.darkTheme);
-    });
+        disableTimerAndBlurring = settings.disableTimerAndBlurring;
 
-    timerBlurringToggle.addEventListener('change', function() {
-        settings.disableTimerAndBlurring = this.checked;
-        localStorage.setItem('settings', JSON.stringify(settings));
-    });
-});
-      
+        // Save settings when changed
+        darkThemeToggle.addEventListener('change', function() {
+          settings.darkTheme = this.checked;
+          localStorage.setItem('settings', JSON.stringify(settings));
+          // dark theme
+          document.body.classList.toggle('dark-theme', settings.darkTheme);
+        });
+
+        timerBlurringToggle.addEventListener('change', function() {
+          settings.disableTimerAndBlurring = this.checked;
+          localStorage.setItem('settings', JSON.stringify(settings));
+        });
+
+        cjkTextCheckbox.addEventListener('change', function() {
+          settings.cjkTextCheckbox = this.checked;
+          localStorage.setItem('settings', JSON.stringify(settings));
+        });
+      });
+            
     </script>
   </body>
 </html>
