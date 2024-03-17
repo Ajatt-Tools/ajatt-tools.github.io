@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script src="https://cdn.jsdelivr.net/npm/tiny-segmenter@0.2.0/dist/tiny-segmenter-0.2.0.min.js"></script>
+    <style>
+      body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px;
+        }
+
+        #popupMessageContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            display: none;
+        }
+
+        .column {
+            width: 30%;
+            margin: 0 10px;
+            transition: filter 0.3s ease;
+        }
+
+.inactive {
+   width: 15%;
+}
+
+        .readonly {
+            opacity: 0.5;
+        }
+
+        .blurred #originalWords {
+            filter: blur(10px);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            cursor: pointer;
+            filter: none;
+        }
+
+        .footer {
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+table {
+    table-layout: fixed;
+}
+
+td {
+    word-wrap: break-word;
+}
+
+
+#questionMark, #unknownWordsMark {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#infoPopup, #unknownWordsPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    max-height: 80%;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid black;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+    text-align: left;
+    display: none;
+    z-index: 1001;
+}
+
+
+
+#unknownWordsPopup textarea,
+#highlightedWords{
+overflow-y : scroll ;
+height :200 px ;
+}
+      
+        body.dark-theme,
+        body.dark-theme textarea {
+            background-color: #1e1e3f;
+            color: #dcdcaa;
+        }
+
+        body.dark-theme #infoPopup,
+        body.dark-theme #unknownWordsPopup {
+            background-color: #2b2b4a;
+            color: #dcdcaa;
+        }
+
+	body.dark-theme tr:nth-child(even) {
+	    background-color: #343450;
+	}
+
+	body.dark-theme tr:nth-child(odd) {
+	    background-color: #2b2b4a;
+	}
+
+	body.dark-theme tr[style*="background-color: palegreen"] {
+	    background-color: #343450 !important; 
+	}
+
+	body.dark-theme tr[style*="background-color: white"] {
+	    background-color: #2b2b4a !important; 
+	}
+
+             .unknownWord { 
+           background-color : yellow ;
+       }
+       
+       body.dark-theme .unknownWord { 
+           background-color : #000 ; 
+       }
+      
+      
+    </style>
+    <title>Vocabulary Memorization</title>
+  </head>
+  <body>
+    <div id="questionMark" onclick="showInfoPopup()">⚙/🯄</div>
+    <div id="infoPopup">
+      <span id="closeButton" style="float: right; cursor: pointer;">╳</span>
+      <input type="checkbox" id="darkThemeToggle" checked/> Dark Theme
+      <input type="checkbox" id="timerBlurringToggle"/> Disable timer and clearing of the Translation column
+    
+      <br/>
+      <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
+      <br/>Group Wordlists, also known as the
+    
+      <a href="http://how-to-learn-any-language.com/forum/forum_posts.asp?TID=16959&amp;PN=5761#182949">Iversen's Method</a>, is a powerful but simple vocabulary learning technique.
+    
+      <br/>
+      <br/>Start by entering
+    
+      <b>5-7</b> words in the target language in the
+    
+      <i>'Original Words'</i> column.
+    
+      <br/>
+      <br/>Memorize meanings of the every of these words, and
+    
+      <b>only if you memorized them all</b> enter the translations or meanings in the
+    
+      <i>'Translations'</i> column.
+    
+      <br/>
+      <br/>After you press
+    
+      <i>'I'm ready to recall'</i> the
+    
+      <i>'Original Words'</i> column will blur and you should try to recall original words by looking at the translations.
+    
+      <br/>
+      <br/>Once successful, enter the original words from memory in the 'Recall' column and press
+    
+      <i>'Check Recall'</i>.
+    
+      <br/>
+      <br/>Average learning time for the author of this website is 5-15 minutes for a 6-7 words group.
+    
+      <br/>
+      <br/>This method is really good because you practice with the same words for enough time for them to be stored in your intermediate-term memory. This is by no means a substitution of Anki or any other SRS. It is just a way to memorize words so that you can later use Anki for its intended purpose: to recall what you have already learned. The list of learned words and phrases at the bottom of the page is made in such a way that you can easily copy the text for the front and back cards. Also you can save CSV to import it in Anki.
+    
+    </div>
+    <div id="popupMessageContainer"></div>
+    <div id="unknownWordsMark" onclick="showUnknownWordsPopup()">🖹</div>
+    <div id="unknownWordsPopup">
+      <span id="closeButtonUnknown" style="float: right; cursor: pointer;">╳</span>
+      <textarea id="unknownWords" placeholder="Enter sentences with unknown words here"></textarea>
+      <button onclick="processSentence()">Process Sentence</button>
+      <div id="highlightedWords"></div>
+    </div>
+    <div class="column" id="originalWordsColumn">
+      <h2>Original Words</h2>
+      <textarea id="originalWords" placeholder="Enter 5-7 words here"></textarea>
+      <button onclick="startRecall()">I'm ready to recall</button>
+    </div>
+    <div class="column">
+      <h2>Translations</h2>
+      <textarea id="translations" placeholder="Enter the meanings ONLY when you have learned all the words"></textarea>
+    </div>
+    <div class="column inactive" id="recallColumn">
+      <h2>Recall</h2>
+      <textarea id="recall" class="readonly" placeholder="Write original words again ONLY when you have learned all the words" readonly=""></textarea>
+      <button onclick="checkRecall()">Check Recall</button>
+    </div>
+    <div class="footer" id="fullListFooter">
+      <h2>Full List</h2>
+      <div id="fullListContainer"></div>
+      <button onclick="generateCSV()">Generate CSV for Anki</button>
+      <br/>
+      <br/>
+      <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
+      <br/>
+      <button onclick="confirmClearLocalStorage()">Clear LocalStorage</button>
+    </div>
+    <script>
+
+
+
+document.getElementById('closeButtonUnknown').addEventListener('click', function() {
+    document.getElementById('unknownWordsPopup').style.display = 'none';
+});
+
+function showUnknownWordsPopup() {
+    document.getElementById('unknownWordsPopup').style.display = 'block';
+}
+
+
+function processSentence() {
+    const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+    const knownWords = existingData.flatMap(entry => entry.originalWords);
+
+    const textarea = document.getElementById('unknownWords');
+    const highlightedContainer = document.getElementById('highlightedWords');
+
+    // Instantiate a new TinySegmenter
+    var segmenter = new TinySegmenter(); 
+
+    // Split by spaces or punctuation marks using tinysegmenter
+    let sentence = segmenter.segment(textarea.value);
+
+    let highlightedHTML = '';
+
+  for (let i=0; i<sentence.length; i++) {
+      let word = removeDiacritics(sentence[i]);
+      if (!knownWords.includes(word)) {
+          highlightedHTML += `<span class='unknownWord'>${sentence[i]}</span> `;
+      } else {
+          highlightedHTML += `${sentence[i]} `;
+      }
+  }
+
+  // Clear text area after processing
+  textarea.value = '';
+
+  // Show processed sentence with highlighted unknown words
+  highlightedContainer.innerHTML = `<p>${highlightedHTML}</p>`;
+
+  const unknownWordElements = document.getElementsByClassName("unknownWord");
+  const originalTextarea = document.getElementById('originalWords');
+
+          for(let element of unknownWordElements) {
+              element.addEventListener("click", function() {
+                  if (!originalTextarea.readOnly) {
+                      originalTextarea.value += this.textContent + "\n";
+                  }
+              });
+          }
+      }
+
+function generateCSV() {
+    const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    existingData.forEach(function(entry) {
+        const originalWords = entry.originalWords.join('\n');
+        const translations = entry.translations.join('\n');
+
+        // Wrap each cell in quotes to preserve newlines within cells
+        csvContent += '"' + originalWords + '",' + '"' + translations + '"' + "\r\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "anki_import.csv");
+    document.body.appendChild(link); // Required for Firefox
+
+    link.click(); // This will download the data file named "anki_import.csv"
+}
+
+
+
+document.getElementById('closeButton').addEventListener('click', function() {
+    document.getElementById('infoPopup').style.display = 'none';
+});
+
+document.addEventListener('click', function(event) {
+    const popup = document.getElementById('infoPopup');
+    const isClickInside = popup.contains(event.target);
+    const isClickOnQuestionMark = document.getElementById('questionMark').contains(event.target);
+
+    if (!isClickInside && !isClickOnQuestionMark) {
+        popup.style.display = 'none';
+    }
+});
+
+document.addEventListener('click', function(event) {
+          const popup = document.getElementById('unknownWordsPopup');
+          const isClickInside = popup.contains(event.target);
+          const isClickOnUnknownWordsMark = document.getElementById('unknownWordsMark').contains(event.target);
+
+          if (!isClickInside && !isClickOnUnknownWordsMark) {
+              popup.style.display = 'none';
+          }
+      });
+
+
+
+
+    let disableTimerAndBlurring = false;
+
+    document.getElementById('timerBlurringToggle').addEventListener('change', function() {
+        disableTimerAndBlurring = this.checked;
+    });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Call the function to display the full list after the page has loaded
+            displayFullList();
+        });
+
+
+
+function displayFullList() {
+    const fullListContainer = document.getElementById('fullListContainer');
+    const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+
+    let tableHTML = "<table border='1' cellpadding='5' style='border-collapse: collapse; width: 100%;'>";
+    tableHTML += "<tr><th>Original</th><th>Translation</th></tr>";
+
+    for (let i = existingData.length - 1; i >= 0; i--) {
+        const entry = existingData[i];
+        const reversedIndex = existingData.length - 1 - i;
+        const backgroundColor = reversedIndex % 2 < 1 ? 'palegreen' : 'white';
+
+        const originalWords = entry.originalWords.join('<br/>');
+        const translations = entry.translations.join('<br/>');
+
+        tableHTML += `<tr style='background-color: ${backgroundColor};'>
+                          <td>${originalWords}</td>
+                          <td>${translations}</td>
+                      </tr>`;
+    }
+
+    tableHTML += "</table>";
+    fullListContainer.innerHTML = tableHTML;
+}
+
+window.addEventListener('blur', function() {
+        if (disableTimerAndBlurring) {
+            return;
+        }
+    if (!isRecalling) {
+        const translationsTextarea = document.getElementById('translations');
+        translationsTextarea.value = '';
+    }
+});
+
+
+let timer;
+
+document.getElementById('translations').addEventListener('keyup', function() {
+
+ if (disableTimerAndBlurring) {
+            return;
+        }
+
+    const originalWordsTextarea = document.getElementById('originalWords');
+    const translationsTextarea = document.getElementById('translations');
+
+    // Clear the timer if it's already running
+    if (timer) {
+        clearTimeout(timer);
+    }
+
+    // Start a new timer
+    timer = setTimeout(function() {
+        const originalWords = originalWordsTextarea.value.split('\n');
+        const translations = translationsTextarea.value.split('\n');
+
+        // If the number of lines in Translations is not equal to the number of lines in Original Words, clear Translations
+        if (translations.length !== originalWords.length) {
+            translationsTextarea.value = '';
+            showPopupMessage('You did not write the same number of lines in Translations as in Original Words within a minute. Translations has been cleared.');
+        }
+    }, 120 * 1000); // 120 seconds
+});
+
+let isRecalling = false;
+
+function startRecall() {
+    const originalWordsTextarea = document.getElementById('originalWords');
+    const translationsTextarea = document.getElementById('translations');
+    const originalWordsColumn = document.getElementById('originalWordsColumn');
+    const recallTextarea = document.getElementById('recall');
+
+    const originalWords = originalWordsTextarea.value.split('\n');
+    const translations = translationsTextarea.value.split('\n');
+
+    if (originalWords.length >= 5 && originalWords.length <= 7 && originalWords.length === translations.length) {
+        recallTextarea.value = '';
+
+        originalWordsColumn.classList.toggle('blurred');
+        originalWordsTextarea.readOnly = originalWordsColumn.classList.contains('blurred');
+        recallTextarea.readOnly = !recallTextarea.readOnly;
+
+        // Toggle the readonly class based on the textarea's readonly state
+        recallTextarea.classList.toggle('readonly', recallTextarea.readOnly);
+
+        const recallButton = document.querySelector('#originalWordsColumn button');
+        recallButton.textContent = recallTextarea.readOnly ? "I'm ready to recall" : "Check original";
+
+// Add or remove .inactive from #recall
+document.getElementById('recall').parentNode.classList.toggle('inactive', recallTextarea.readOnly);
+
+// Add or remove .inactive from #originalWordsColumn
+originalWordsColumn.classList.toggle('inactive', originalWordsTextarea.readOnly);
+
+// Remove .inactive from #recallColumn when recallTextarea.readOnly is false
+document.getElementById('recallColumn').classList.toggle('inactive', recallTextarea.readOnly);
+
+    } else {
+        showPopupMessage('Please ensure there are 5 to 7 lines in Original Words and the same number of lines in Translations.');
+    }
+
+isRecalling = true;
+}
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Call the function to display the full list after the page has loaded
+            displayFullList();
+
+            document.getElementById('originalWords').addEventListener('input', function() {
+                isRecalling = false;
+            });
+        });
+
+
+function removeDiacritics(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+
+
+function checkRecall() {
+    const originalWordsTextarea = document.getElementById('originalWords');
+    const translationsTextarea = document.getElementById('translations');
+    const recallTextarea = document.getElementById('recall');
+
+    const originalWords = originalWordsTextarea.value.split('\n');
+    const translations = translationsTextarea.value.split('\n');
+    const recalledWords = recallTextarea.value.split('\n').map(word => removeDiacritics(word));
+    let allCorrect = true;
+
+    // Check if all recalled words are correct
+    for (let i = 0; i < originalWords.length; i++) {
+        if (recalledWords[i] !== removeDiacritics(originalWords[i])) {
+            allCorrect = false;
+            break;
+        }
+    }
+
+    // If all are correct, add new words to localStorage
+    if (allCorrect) {
+        const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+        addToLocalStorage(originalWords, translations);
+        const updatedData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+
+        if (updatedData.length > existingData.length) {
+            showPopupMessage("Correct! New words have been added to the list.");
+
+        } else {
+            showPopupMessage("Correct! But no new words were learned.");
+
+        }
+    } else {
+        showPopupMessage("Incorrect! Try again.");
+    }
+
+    displayFullList();
+
+}
+
+
+        function showPopupMessage(message) {
+            const popupContainer = document.getElementById('popupMessageContainer');
+
+            popupContainer.innerHTML = message;
+            popupContainer.style.display = 'block';
+
+            setTimeout(() => {
+                popupContainer.style.display = 'none';
+            }, 2000);
+        }
+
+function addToLocalStorage(originalWords, translations) {
+    const existingData = JSON.parse(localStorage.getItem('wordPairs')) || [];
+    const newOriginalWords = [];
+    const newTranslations = [];
+
+    for (let i = 0; i < originalWords.length; i++) {
+        const isNewWord = !existingData.some(entry => entry.originalWords.includes(originalWords[i]));
+
+        if (isNewWord) {
+            newOriginalWords.push(originalWords[i]);
+            newTranslations.push(translations[i]);
+        }
+    }
+
+    if (newOriginalWords.length > 0) {
+        existingData.push({ originalWords: newOriginalWords, translations: newTranslations });
+        localStorage.setItem('wordPairs', JSON.stringify(existingData));
+    }
+}
+
+        function clearLocalStorage() {
+            localStorage.removeItem('wordPairs');
+            displayFullList(); // Refresh the list
+        }
+	    
+        function confirmClearLocalStorage() {
+            if (confirm("Are you sure you want to clear word pairs?")) {
+                clearLocalStorage();
+            }
+        }
+
+function showInfoPopup() {
+    document.getElementById('infoPopup').style.display = 'block';
+}
+     
+document.getElementById('darkThemeToggle').addEventListener('change', function() {
+   document.body.classList.toggle('dark-theme', this.checked);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+   document.body.classList.add('dark-theme');
+});      
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Load settings from localStorage
+    const settings = JSON.parse(localStorage.getItem('settings')) || {"darkTheme":true,"disableTimerAndBlurring":false};
+
+    const darkThemeToggle = document.getElementById('darkThemeToggle');
+    const timerBlurringToggle = document.getElementById('timerBlurringToggle');
+
+    // Apply settings from localStorage
+    darkThemeToggle.checked = settings.darkTheme;
+    timerBlurringToggle.checked = settings.disableTimerAndBlurring;
+
+    // apply settings
+    document.body.classList.toggle('dark-theme', settings.darkTheme);
+    disableTimerAndBlurring = settings.disableTimerAndBlurring;
+
+    // Save settings when changed
+    darkThemeToggle.addEventListener('change', function() {
+        settings.darkTheme = this.checked;
+        localStorage.setItem('settings', JSON.stringify(settings));
+        // dark theme
+        document.body.classList.toggle('dark-theme', settings.darkTheme);
+    });
+
+    timerBlurringToggle.addEventListener('change', function() {
+        settings.disableTimerAndBlurring = this.checked;
+        localStorage.setItem('settings', JSON.stringify(settings));
+    });
+});
+      
+    </script>
+  </body>
+</html>
