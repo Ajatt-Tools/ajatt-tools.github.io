@@ -102,6 +102,7 @@ td {
     text-align: left;
     display: none;
     z-index: 1001;
+    overflow-y:auto;
 }
 
 
@@ -157,10 +158,10 @@ height :200 px ;
     <div id="infoPopup">
       <span id="closeButton" style="float: right; cursor: pointer;">╳</span>
       <input type="checkbox" id="darkThemeToggle" checked/> Dark Theme
-      <input type="checkbox" id="timerBlurringToggle"/> Disable timer and clearing of the Translation column
+      <input type="checkbox" id="timerBlurringToggle"/> Disable fail timer (120s by default)
     
       <br/>
-      <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
+      <center>`._- `._- `._- `._- `._-<a href="https://tatsumoto.neocities.org/blog/join-our-community">Join our language-learning community</a>`._- `._- `._- `._- `._-</center>
       <br/>Group Wordlists, also known as the
     
       <a href="http://how-to-learn-any-language.com/forum/forum_posts.asp?TID=16959&amp;PN=5761#182949">Iversen's Method</a>, is a powerful but simple vocabulary learning technique.
@@ -196,7 +197,12 @@ height :200 px ;
     
       <br/>
       <br/>This method is really good because you practice with the same words for enough time for them to be stored in your intermediate-term memory. This is by no means a substitution of Anki or any other SRS. It is just a way to memorize words so that you can later use Anki for its intended purpose: to recall what you have already learned. The list of learned words and phrases at the bottom of the page is made in such a way that you can easily copy the text for the front and back cards. Also you can save CSV to import it in Anki.
-    
+      <br/>
+      <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
+      <br/>Script made by <a href="https://github.com/asakura42">asakura42</a> and <a href="https://github.com/ajatt-tools">Ajatt-Tools</a> project
+      <br/>
+      <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
+      <br/><br/>
     </div>
     <div id="popupMessageContainer"></div>
     <div id="unknownWordsMark" onclick="showUnknownWordsPopup()">🖹</div>
@@ -229,7 +235,7 @@ height :200 px ;
       <br/>
       <center>-`._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._- `._-</center>
       <br/>
-      <button onclick="confirmClearLocalStorage()">Clear LocalStorage</button>
+      <button onclick="confirmClearLocalStorage()">Clear all word pairs</button>
     </div>
     <script>
 
@@ -608,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
           localStorage.setItem('settings', JSON.stringify(settings));
         });
       });
-            
+
     </script>
   </body>
 </html>
